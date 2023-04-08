@@ -21,18 +21,28 @@ class Directory(SQLModel, table=True):
                                                              'default': func.now()})
 
 
-class File(SQLModel, table=True):
+class FileBase(SQLModel):
+    name: str = Field()
+    directory_id: Optional[int] = Field(foreign_key='directory.id')
+
+
+class File(FileBase, table=True):
     """
     A model that represents a file, links
     its data on cloud storage and on the server.
 
-    If 'folder_id' is NULL, then the file is in the root directory.
+    If 'directory_id' is NULL, then the file is in the root directory.
     """
 
     id: int = Field(primary_key=True)
-    name: str
-    directory_id: Optional[int] = Field(foreign_key='directory.id')
-    location_on_server: str
+    location: str
+    is_loaded: bool = Field(default=False)
     loaded_at: datetime.datetime = Field(sa_column_kwargs={'default': func.now()})
     modified_at: datetime.datetime = Field(sa_column_kwargs={'onupdate': func.now(),
                                                              'default': func.now()})
+
+
+class FileCreate(FileBase):
+    """A model that is used to validate data on post request"""
+
+    size: int = Field(gt=0)
