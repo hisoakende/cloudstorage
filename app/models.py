@@ -24,6 +24,7 @@ class Directory(SQLModel, table=True):
 class FileBase(SQLModel):
     name: str = Field()
     directory_id: Optional[int] = Field(foreign_key='directory.id')
+    size: int = Field(gt=0)
 
 
 class File(FileBase, table=True):
@@ -32,10 +33,15 @@ class File(FileBase, table=True):
     its data on cloud storage and on the server.
 
     If 'directory_id' is NULL, then the file is in the root directory.
+
+    Also, this model has a unique constraint of the 'name'
+    and 'directory_id' fields, 'directory_id' can be NULL
+
+    'CONSTRAINT file_name_directory_id UNIQUE NULLS NOT DISTINCT ("name", "directory_id")'
     """
 
     id: int = Field(primary_key=True)
-    location: str
+    location: str = Field(unique=True)
     is_loaded: bool = Field(default=False)
     loaded_at: datetime.datetime = Field(sa_column_kwargs={'default': func.now()})
     modified_at: datetime.datetime = Field(sa_column_kwargs={'onupdate': func.now(),
@@ -44,5 +50,4 @@ class File(FileBase, table=True):
 
 class FileCreate(FileBase):
     """A model that is used to validate data on post request"""
-
-    size: int = Field(gt=0)
+    pass
