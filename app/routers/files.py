@@ -14,12 +14,12 @@ async def get_uploading_id(user_file: FileCreate):
     """
     The view that receives metadata about a file and returns id for the upload
 
-    If there is a file with the same name and directory, its upload id will be returned
+    If there is a file with the same name and directory, its uploading id will be returned
     and on upload it will be overwritten
     """
 
     path = await create_file_path(user_file.name, user_file.directory_id)
     file_info = File(**dict(user_file, location=path))
-    file_id = await save_file_info(file_info)
+    uploading_id = await save_file_info(file_info)
 
-    return {'upload_id': file_id}
+    return {'uploading_id': uploading_id}

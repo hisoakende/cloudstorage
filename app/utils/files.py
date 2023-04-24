@@ -29,12 +29,10 @@ async def save_file_info(file_info: File) -> int:
 async def create_file_path(name: str, directory_id: Optional[int]) -> str:
     """The function returns guaranteed unique path to the file"""
 
-    path = generate_file_path(name, directory_id)
     async with database.Session() as session:
-        query = select(File.location).where(File.location == path)
-
-        while (await session.execute(query)).first():
+        while 'query' not in locals() or (await session.scalars(query)).first():  # type: ignore
             path = generate_file_path(name, directory_id)
+            query = select(File.location).where(File.location == path)
 
     return path
 
